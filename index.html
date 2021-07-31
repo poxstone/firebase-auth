@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Firebase  cdn libreria -->
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+    <!-- Firebase  cdn libreria de autenticacion -->
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
+        
+    <script>
+        // configuracion otrogada por firebase console
+        var firebaseConfig = {
+            apiKey: "AIzaSyAEEW2kOmW8xjhV7dwsogSeW64ftCcK4l8",
+            authDomain: "fir-auth-001-55cf1.firebaseapp.com",
+            projectId: "fir-auth-001-55cf1",
+            storageBucket: "fir-auth-001-55cf1.appspot.com",
+            messagingSenderId: "335736745655",
+            appId: "1:335736745655:web:f3d23c8c265295398da732",
+            measurementId: "G-VKS6WS2NFF"
+        };
+        // iniciar aplicacion, permite mantener sesión al recargar la pagina
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+<title>Mi aplicacion</title>
+
+</head>
+<body>
+    <h1>Mi aplicacion</h1>
+    <button id="login-button">Autehticarse (Google)</button>
+    <hr>
+    <form action="/validate">
+        <input type="text" id="user" name="user">
+        <input type="text" id="token" name="token">
+        <input type="submit" value="validar">
+    </form>
+    
+  <script>
+      var btnLogin = document.querySelector('#login-button');
+      var inpUser = document.querySelector('#user');
+      var inpToken = document.querySelector('#token');
+
+      firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+              btnLogin.innerText = "Salir";
+
+              firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
+                inpUser.value = user.email;
+                inpToken.value = idToken;
+              }).catch(function(error) {
+                console.error(error)
+              });
+              // User is signed in.
+          } else {
+              // No user is signed in.
+              btnLogin.innerText = "Autenticarse (Google)";
+          }
+      });
+      
+      // Funcion que se encarga de login y logout
+      function authFlow(event) {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          if (!firebase.auth().currentUser) {
+              provider.addScope('profile');
+              provider.addScope('email');
+              firebase.auth().signInWithPopup(provider).then(function(result) {
+                  // This gives you a Google Access Token.
+                  var token = result.credential.accessToken;
+                  // The signed-in user info.
+                  var user = result.user;
+              });
+          } else {
+              firebase.auth().signOut();
+              alert('Has cerrado sesion');
+          }
+      }
+      // Asigan funcion de login/logut al bonton
+      btnLogin.addEventListener('click', authFlow);
+  </script>
+</body>
+</html>
